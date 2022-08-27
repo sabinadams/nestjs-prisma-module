@@ -15,5 +15,8 @@ module.exports = {
     sourceType: 'module',
   },
   plugins: ['@typescript-eslint'],
-  rules: {},
+  rules: {
+    // 😭 Weird ESLint warnings get thrown when using Decorators...
+    '@typescript-eslint/no-unused-vars': 'off',
+  },
 };
