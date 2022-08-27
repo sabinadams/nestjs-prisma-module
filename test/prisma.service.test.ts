@@ -1,36 +1,17 @@
-import {
-  afterAll,
-  afterEach,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from 'vitest';
+import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest';
 import PrismaService from '../src/prisma.service';
-import { createSandbox, assert } from 'sinon';
-
+import { createSandbox } from 'sinon';
+import PrismaMock from './helpers/PrismaMock';
 afterAll(() => {
   process.removeAllListeners('SIGTERM');
   process.removeAllListeners('SIGINT');
 });
 
-class MockClass {
-  constructor(public options: any) {}
-  getOptions() {
-    return this.options;
-  }
-
-  $connect = vi.fn();
-  $disconnect = vi.fn();
-  $on = vi.fn();
-}
-
 const options = { foo: 'bar' };
 let service, sandbox, exitStub;
 
 beforeEach(() => {
-  service = new PrismaService(MockClass, 'file:./dev.db', options, 'PROVIDER');
+  service = new PrismaService(PrismaMock, 'file:./dev.db', options, 'PROVIDER');
   sandbox = createSandbox({ useFakeTimers: true });
   exitStub = sandbox.stub(process, 'exit');
 });
@@ -77,7 +58,7 @@ describe('prisma.service.ts', () => {
     it('Should generate the provided client with the configured options', () => {
       const client = service.generateClient('TEST');
       const options = client.getOptions();
-      expect(client).toBeInstanceOf(MockClass);
+      expect(client).toBeInstanceOf(PrismaMock);
       expect(options).toHaveProperty('foo');
       expect(options.foo).toBe('bar');
       expect(options).toHaveProperty('datasources');
@@ -92,7 +73,7 @@ describe('prisma.service.ts', () => {
     it('Should store a connection in the cache if the connection did not exist and return it', () => {
       service.getConnection('test-tenant');
       expect(service.connections).toHaveProperty('test-tenant');
-      expect(service.connections['test-tenant']).toBeInstanceOf(MockClass);
+      expect(service.connections['test-tenant']).toBeInstanceOf(PrismaMock);
     });
     it('Should re-use an existing conncetion', () => {
       service.getConnection('test-tenant');
