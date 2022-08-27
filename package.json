@@ -55,5 +55,8 @@
     "@nestjs/common": "^9.0.11",
     "@nestjs/core": "^9.0.11",
     "connection-string": "^4.3.5"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
