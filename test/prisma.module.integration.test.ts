@@ -21,7 +21,6 @@ describe('Integration Tests', () => {
                 return client;
               },
             },
-            datasource: 'file:./dev.db',
             name: 'USERS',
           }),
         ],

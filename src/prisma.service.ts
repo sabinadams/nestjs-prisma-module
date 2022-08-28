@@ -62,11 +62,15 @@ export default class PrismaService<T extends ClassLike>
     // Create an instance of the client
     const instance = new client({
       ...this.config,
-      datasources: {
-        db: {
-          url: this.getTenantDBUrl(name),
-        },
-      },
+      ...(this.multitenancy
+        ? {
+            datasources: {
+              db: {
+                url: this.getTenantDBUrl(name),
+              },
+            },
+          }
+        : {}),
     });
 
     // Run the initializer and return the instance

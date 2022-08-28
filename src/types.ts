@@ -5,15 +5,15 @@ export type GetConstructorArgs<T> = T extends new (...args: infer U) => any
 export interface ConnectionObject<T> {
   [name: string]: T;
 }
+
 export type Initializer<T extends ClassLike> = (
   client: InstanceType<T>,
   tenant: string,
 ) => InstanceType<T>;
-export type PluginConfig<T extends ClassLike> = {
+
+type BasePluginConfig<T extends ClassLike> = {
   name: string;
-  datasource: string;
-  multitenancy: boolean;
-  logging: boolean;
+  logging?: boolean;
   client:
     | T
     | {
@@ -22,3 +22,19 @@ export type PluginConfig<T extends ClassLike> = {
       };
   options?: Omit<GetConstructorArgs<T>[0], 'datasources'>;
 };
+
+// If multitenancy or datasource is present, both need to be there
+interface PluginConfigMulti<T extends ClassLike> extends BasePluginConfig<T> {
+  multitenancy: boolean;
+  datasource: string;
+}
+
+// If
+interface PluginConfigSingle<T extends ClassLike> extends BasePluginConfig<T> {
+  multitenancy?: false;
+  datasource?: undefined;
+}
+
+export type PluginConfig<T extends ClassLike> =
+  | PluginConfigMulti<T>
+  | PluginConfigSingle<T>;
