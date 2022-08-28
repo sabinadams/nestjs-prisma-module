@@ -1,5 +1,5 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
-import { ClassLike, GetConstructorArgs } from './types';
+import type { ClassLike, Initializer, PluginConfig } from './types';
 import { ConnectionString } from 'connection-string';
 
 @Injectable()
@@ -8,10 +8,10 @@ export default class PrismaService<T extends ClassLike>
 {
   connections = {};
   constructor(
-    public PrismaClient: T,
-    public datasource: string,
-    public config: GetConstructorArgs<T>[0],
-    public name: string,
+    public PrismaClient: PluginConfig<T>['client'],
+    public datasource: PluginConfig<T>['datasource'],
+    public config: PluginConfig<T>['options'],
+    public name: PluginConfig<T>['name'],
   ) {}
 
   getTenantDBUrl(name: string) {
@@ -41,7 +41,20 @@ export default class PrismaService<T extends ClassLike>
   }
 
   generateClient(name: string) {
-    return new this.PrismaClient({
+    // Default the initializer assuming no initializer was passed
+    let client: T,
+      initializer: Initializer<T> = (client, _) => client;
+
+    // If the input was of the type { class: T, initializer: Initializer<T>} update the vars
+    if ('initializer' in this.PrismaClient) {
+      client = this.PrismaClient.class;
+      initializer = this.PrismaClient.initializer;
+    } else {
+      client = this.PrismaClient;
+    }
+
+    // Create an instance of the client
+    const instance = new client({
       ...this.config,
       datasources: {
         db: {
@@ -49,6 +62,9 @@ export default class PrismaService<T extends ClassLike>
         },
       },
     });
+
+    // Run the initializer and return the instance
+    return initializer(instance, name);
   }
 
   getConnection(tenant: string) {

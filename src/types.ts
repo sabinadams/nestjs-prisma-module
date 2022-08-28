@@ -5,9 +5,18 @@ export type GetConstructorArgs<T> = T extends new (...args: infer U) => any
 export interface ConnectionObject<T> {
   [name: string]: T;
 }
-export type PluginConfig<T> = {
+export type Initializer<T extends ClassLike> = (
+  client: InstanceType<T>,
+  tenant: string,
+) => InstanceType<T>;
+export type PluginConfig<T extends ClassLike> = {
   name: string;
   datasource: string;
-  client: T;
+  client:
+    | T
+    | {
+        class: T;
+        initializer: Initializer<T>;
+      };
   options?: Omit<GetConstructorArgs<T>[0], 'datasources'>;
 };
