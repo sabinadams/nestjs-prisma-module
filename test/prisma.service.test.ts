@@ -1,4 +1,12 @@
-import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest';
+import {
+  afterAll,
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from 'vitest';
 import PrismaService from '../src/prisma.service';
 import { createSandbox } from 'sinon';
 import PrismaMock from './helpers/PrismaMock';
@@ -11,7 +19,7 @@ const options = { foo: 'bar' };
 let service, sandbox, exitStub;
 
 beforeEach(() => {
-  service = new PrismaService(PrismaMock, 'file:./dev.db', options, 'PROVIDER');
+  service = new PrismaService(PrismaMock, undefined, options, 'PROVIDER');
   sandbox = createSandbox({ useFakeTimers: true });
   exitStub = sandbox.stub(process, 'exit');
 });
@@ -55,18 +63,40 @@ describe('prisma.service.ts', () => {
     });
   });
   describe('generateClient', () => {
-    it('Should generate the provided client with the configured options', () => {
+    it('Single Tenant | Should generate the provided client with the configured options', () => {
+      vi.spyOn(service, 'getTenantDBUrl');
       const client = service.generateClient('TEST');
-      const options = client.getOptions();
       expect(client).toBeInstanceOf(PrismaMock);
-      expect(options).toHaveProperty('foo');
-      expect(options.foo).toBe('bar');
-      expect(options).toHaveProperty('datasources');
-      expect(options.datasources).toStrictEqual({
-        db: {
-          url: 'file:./dev.db',
-        },
-      });
+      expect(service.multitenancy).toBe(false);
+      expect(service.getTenantDBUrl).toBeCalledTimes(0);
+    });
+    it('Multi Tenant | Should generate the provided client with the configured options', () => {
+      service = new PrismaService(
+        PrismaMock,
+        'file:./dev.db',
+        options,
+        'PROVIDER',
+        true,
+        false,
+      );
+      vi.spyOn(service, 'getTenantDBUrl');
+      const client = service.generateClient('TEST');
+      expect(client).toBeInstanceOf(PrismaMock);
+      expect(service.getTenantDBUrl).toBeCalledTimes(1);
+    });
+    it('Should run an initializer function if provided', () => {
+      const initializerMock = vi.fn((client, _) => client);
+      service = new PrismaService(
+        { class: PrismaMock, initializer: initializerMock },
+        'file:./dev.db',
+        options,
+        'PROVIDER',
+        true,
+        false,
+      );
+      const client = service.generateClient('TEST');
+      expect(client).toBeInstanceOf(PrismaMock);
+      expect(initializerMock).toHaveBeenCalled();
     });
   });
   describe('getConnection', () => {
