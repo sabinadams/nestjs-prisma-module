@@ -1,6 +1,6 @@
 {
   "name": "@sabinthedev/nestjs-prisma-tenants",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A NestJS module that allows you use Prisma, set up multiple Prisma services, and use multi-tenancy in each Prisma service.",
   "files": [
     "dist"
