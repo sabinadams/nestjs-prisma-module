@@ -12,70 +12,139 @@ vi.mock('../src/prisma.service.ts', () => {
 });
 
 describe('prisma.module.ts', () => {
-  it('Class Only: Should return a dynamic module with the Prisma Service as a provider', async () => {
-    const dynamic_module = PrismaModule.register({
-      client: PrismaMock,
-      datasource: 'file:./dev.db',
-      name: 'TEST',
-    });
+  describe('Multitenancy', () => {
+    it('Class Only: Should return a dynamic module with the Prisma Service as a provider', async () => {
+      const dynamic_module = PrismaModule.register({
+        client: PrismaMock,
+        datasource: 'file:./dev.db',
+        multitenancy: true,
+        name: 'TEST',
+      });
 
-    // Make sure a provider is returned
-    expect(dynamic_module.providers.length).toBe(1);
-    // Make sure the provider one of the factory providers
-    expect(dynamic_module.providers[0]).toHaveProperty('useFactory');
-    // Make sure the module exports the provider
-    expect(dynamic_module.exports.length).toBe(1);
-    // Make sure the same provider is being set as a provider and an export
-    expect(dynamic_module.exports).toStrictEqual(dynamic_module.providers);
-    // Make sure the factory provider is provided the correct name
-    const factory_provider: FactoryProvider = dynamic_module
-      .providers[0] as FactoryProvider;
-    expect(factory_provider.provide).toBe('TEST');
+      // Make sure a provider is returned
+      expect(dynamic_module.providers.length).toBe(1);
+      // Make sure the provider one of the factory providers
+      expect(dynamic_module.providers[0]).toHaveProperty('useFactory');
+      // Make sure the module exports the provider
+      expect(dynamic_module.exports.length).toBe(1);
+      // Make sure the same provider is being set as a provider and an export
+      expect(dynamic_module.exports).toStrictEqual(dynamic_module.providers);
+      // Make sure the factory provider is provided the correct name
+      const factory_provider: FactoryProvider = dynamic_module
+        .providers[0] as FactoryProvider;
+      expect(factory_provider.provide).toBe('TEST');
 
-    const connection = await factory_provider.useFactory({
-      headers: {
-        'x-tenant-id': 'test-tenant',
-        get() {
-          return this;
+      const connection = await factory_provider.useFactory({
+        headers: {
+          'x-tenant-id': 'test-tenant',
+          get() {
+            return this;
+          },
         },
-      },
+      });
+      expect(connection).toBeInstanceOf(PrismaMock);
     });
-    expect(connection).toBeInstanceOf(PrismaMock);
+
+    it('With Initializer: Should return a dynamic module with the Prisma Service as a provider', async () => {
+      const dynamic_module = PrismaModule.register({
+        client: {
+          class: PrismaMock,
+          initializer: (client, _) => {
+            return client;
+          },
+        },
+        datasource: 'file:./dev.db',
+        multitenancy: true,
+        name: 'TEST',
+      });
+
+      // Make sure a provider is returned
+      expect(dynamic_module.providers.length).toBe(1);
+      // Make sure the provider one of the factory providers
+      expect(dynamic_module.providers[0]).toHaveProperty('useFactory');
+      // Make sure the module exports the provider
+      expect(dynamic_module.exports.length).toBe(1);
+      // Make sure the same provider is being set as a provider and an export
+      expect(dynamic_module.exports).toStrictEqual(dynamic_module.providers);
+      // Make sure the factory provider is provided the correct name
+      const factory_provider: FactoryProvider = dynamic_module
+        .providers[0] as FactoryProvider;
+      expect(factory_provider.provide).toBe('TEST');
+
+      const connection = await factory_provider.useFactory({
+        headers: {
+          'x-tenant-id': 'test-tenant',
+          get() {
+            return this;
+          },
+        },
+      });
+      expect(connection).toBeInstanceOf(PrismaMock);
+    });
   });
 
-  it('With Initializer: Should return a dynamic module with the Prisma Service as a provider', async () => {
-    const dynamic_module = PrismaModule.register({
-      client: {
-        class: PrismaMock,
-        initializer: (client, _) => {
-          return client;
+  describe('Single Tenant', () => {
+    it('Class Only: Should return a dynamic module with the Prisma Service as a provider', async () => {
+      const dynamic_module = PrismaModule.register({
+        client: PrismaMock,
+        name: 'TEST',
+      });
+
+      // Make sure a provider is returned
+      expect(dynamic_module.providers.length).toBe(1);
+      // Make sure the provider one of the factory providers
+      expect(dynamic_module.providers[0]).toHaveProperty('useFactory');
+      // Make sure the module exports the provider
+      expect(dynamic_module.exports.length).toBe(1);
+      // Make sure the same provider is being set as a provider and an export
+      expect(dynamic_module.exports).toStrictEqual(dynamic_module.providers);
+      // Make sure the factory provider is provided the correct name
+      const factory_provider: FactoryProvider = dynamic_module
+        .providers[0] as FactoryProvider;
+      expect(factory_provider.provide).toBe('TEST');
+
+      const connection = await factory_provider.useFactory({
+        headers: {
+          get() {
+            return this;
+          },
         },
-      },
-      datasource: 'file:./dev.db',
-      name: 'TEST',
+      });
+      expect(connection).toBeInstanceOf(PrismaMock);
     });
 
-    // Make sure a provider is returned
-    expect(dynamic_module.providers.length).toBe(1);
-    // Make sure the provider one of the factory providers
-    expect(dynamic_module.providers[0]).toHaveProperty('useFactory');
-    // Make sure the module exports the provider
-    expect(dynamic_module.exports.length).toBe(1);
-    // Make sure the same provider is being set as a provider and an export
-    expect(dynamic_module.exports).toStrictEqual(dynamic_module.providers);
-    // Make sure the factory provider is provided the correct name
-    const factory_provider: FactoryProvider = dynamic_module
-      .providers[0] as FactoryProvider;
-    expect(factory_provider.provide).toBe('TEST');
-
-    const connection = await factory_provider.useFactory({
-      headers: {
-        'x-tenant-id': 'test-tenant',
-        get() {
-          return this;
+    it('With Initializer: Should return a dynamic module with the Prisma Service as a provider', async () => {
+      const dynamic_module = PrismaModule.register({
+        client: {
+          class: PrismaMock,
+          initializer: (client, _) => {
+            return client;
+          },
         },
-      },
+        name: 'TEST',
+      });
+
+      // Make sure a provider is returned
+      expect(dynamic_module.providers.length).toBe(1);
+      // Make sure the provider one of the factory providers
+      expect(dynamic_module.providers[0]).toHaveProperty('useFactory');
+      // Make sure the module exports the provider
+      expect(dynamic_module.exports.length).toBe(1);
+      // Make sure the same provider is being set as a provider and an export
+      expect(dynamic_module.exports).toStrictEqual(dynamic_module.providers);
+      // Make sure the factory provider is provided the correct name
+      const factory_provider: FactoryProvider = dynamic_module
+        .providers[0] as FactoryProvider;
+      expect(factory_provider.provide).toBe('TEST');
+
+      const connection = await factory_provider.useFactory({
+        headers: {
+          get() {
+            return this;
+          },
+        },
+      });
+      expect(connection).toBeInstanceOf(PrismaMock);
     });
-    expect(connection).toBeInstanceOf(PrismaMock);
   });
 });
