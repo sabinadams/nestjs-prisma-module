@@ -10,11 +10,14 @@ export class PrismaModule {
   ): DynamicModule {
     const provider = factory(
       options.name,
+      options.multitenancy,
       new PrismaService(
         options.client,
         options.datasource,
         options.options,
         options.name,
+        options.multitenancy,
+        options.logging,
       ),
     );
     return {

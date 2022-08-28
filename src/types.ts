@@ -12,6 +12,8 @@ export type Initializer<T extends ClassLike> = (
 export type PluginConfig<T extends ClassLike> = {
   name: string;
   datasource: string;
+  multitenancy: boolean;
+  logging: boolean;
   client:
     | T
     | {
