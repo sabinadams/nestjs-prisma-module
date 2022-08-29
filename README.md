@@ -1,6 +1,6 @@
 ## NestJS Prisma Module 
 
-![Header](https://user-images.githubusercontent.com/18456526/186809677-11818965-2870-4912-b4b9-5bbcebd9b270.png)
+![Header](https://res.cloudinary.com/sabinthedev/image/upload/v1661752534/NestJSPrismaModule_sa8xvh.png)
 
 <div align=center>
 
