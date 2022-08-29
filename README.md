@@ -8,7 +8,7 @@
 [![Linting](https://github.com/sabinadams/nestjs-prisma-module/actions/workflows/lint.yml/badge.svg)](https://github.com/sabinadams/nestjs-prisma-module/actions/workflows/lint.yml)
 [![npm version](https://badge.fury.io/js/@sabinthedev%2Fnestjs-prisma.svg)](https://badge.fury.io/js/@sabinthedev%2Fnestjs-prisma)
 
-[![NPM](https://nodei.co/npm/@sabinthedev/nestjs-prisma-tenants.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/@sabinthedev/nestjs-prisma-tenants)
+[![NPM](https://nodei.co/npm/@sabinthedev/nestjs-prisma.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/@sabinthedev/nestjs-prisma)
 
 </div>
 
@@ -17,12 +17,12 @@
 To use this package, first install it:
 
 ```sh
-npm i @sabinthedev/nestjs-prisma-tenants
+npm i @sabinthedev/nestjs-prisma
 ```
 
 ## Basic Usage
 
-In order to use this package, you will need one or more [Prisma](https://www.prisma.io/) Client set up in your project.
+In order to use this package, you will need one or more [Prisma Clients](https://www.prisma.io/) set up in your project.
 
 ```ts
 import { Module } from '@nestjs/common';
