@@ -4,8 +4,9 @@
 
 <div align=center>
 
-[![Bump Version](https://github.com/sabinadams/nestjs-prisma-tenants/actions/workflows/version.yml/badge.svg)](https://github.com/sabinadams/nestjs-prisma-tenants/actions/workflows/version.yml)
-[![Tests/Linting](https://github.com/sabinadams/nestjs-prisma-tenants/actions/workflows/checks.yml/badge.svg)](https://github.com/sabinadams/nestjs-prisma-tenants/actions/workflows/checks.yml)[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![Tests](https://github.com/sabinadams/nestjs-prisma-module/actions/workflows/tests.yml/badge.svg)](https://github.com/sabinadams/nestjs-prisma-module/actions/workflows/tests.yml)
+[![Linting](https://github.com/sabinadams/nestjs-prisma-module/actions/workflows/lint.yml/badge.svg)](https://github.com/sabinadams/nestjs-prisma-module/actions/workflows/lint.yml)
+[![npm version](https://badge.fury.io/js/@sabinthedev%2Fnestjs-prisma.svg)](https://badge.fury.io/js/@sabinthedev%2Fnestjs-prisma)
 
 [![NPM](https://nodei.co/npm/@sabinthedev/nestjs-prisma-tenants.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/@sabinthedev/nestjs-prisma-tenants)
 
