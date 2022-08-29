@@ -29,7 +29,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaClient } from '@prisma/client';
-import { PrismaModule } from './modules/prisma';
+import { PrismaModule } from '@sabinthedev/nestjs-prisma';
 
 @Module({
   imports: [
