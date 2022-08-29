@@ -11,15 +11,15 @@ export type Initializer<T extends ClassLike> = (
   tenant: string,
 ) => InstanceType<T>;
 
+type ClientConfig<T extends ClassLike> = {
+  class: T;
+  initializer: Initializer<T>;
+};
+
 type BasePluginConfig<T extends ClassLike> = {
   name: string;
   logging?: boolean;
-  client:
-    | T
-    | {
-        class: T;
-        initializer: Initializer<T>;
-      };
+  client: T | ClientConfig<T>;
   options?: Omit<GetConstructorArgs<T>[0], 'datasources'>;
 };
 
