@@ -57,7 +57,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaClient } from '@prisma/client';
-import { PrismaModule } from './modules/prisma';
+import { PrismaModule } from '@sabinthedev/nestjs-prisma';
 
 @Module({
   imports: [
@@ -152,7 +152,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaClient } from '@prisma/client';
-import { PrismaModule } from './modules/prisma';
+import { PrismaModule } from '@sabinthedev/nestjs-prisma';
 
 @Module({
   imports: [
@@ -190,7 +190,7 @@ You can then register a second client in a way similar to the following:
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PrismaModule } from './modules/prisma';
+import { PrismaModule } from '@sabinthedev/nestjs-prisma';
 
 // Import your clients 
 import { PrismaClient as AuthClient } from '../prisma-clients/auth';
