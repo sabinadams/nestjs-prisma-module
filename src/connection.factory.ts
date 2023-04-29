@@ -13,7 +13,7 @@ export default (
   scope: Scope.REQUEST,
   useFactory: async (req: Request) => {
     return new Promise((resolve, reject) => {
-      if (!req.headers.get('x-tenant-id') && multitenancy) {
+      if (!req.headers['x-tenant-id'] && multitenancy) {
         reject(new BadRequestException('⛔️ Invalid Request Options - Tenant'));
       } else {
         const connection = _service.getConnection(
