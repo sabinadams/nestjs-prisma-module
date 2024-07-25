@@ -10,16 +10,16 @@ import {
 import PrismaService from '../src/prisma.service';
 import { createSandbox } from 'sinon';
 import PrismaMock from './helpers/PrismaMock';
+
 afterAll(() => {
   process.removeAllListeners('SIGTERM');
   process.removeAllListeners('SIGINT');
 });
 
-const options = { foo: 'bar' };
 let service, sandbox, exitStub;
 
 beforeEach(() => {
-  service = new PrismaService(PrismaMock, undefined, options, 'PROVIDER');
+  service = new PrismaService(PrismaMock, undefined, 'PROVIDER');
   sandbox = createSandbox({ useFakeTimers: true });
   exitStub = sandbox.stub(process, 'exit');
 });
@@ -74,7 +74,6 @@ describe('prisma.service.ts', () => {
       service = new PrismaService(
         PrismaMock,
         'file:./dev.db',
-        options,
         'PROVIDER',
         true,
         false,
@@ -89,7 +88,6 @@ describe('prisma.service.ts', () => {
       service = new PrismaService(
         { class: PrismaMock, initializer: initializerMock },
         'file:./dev.db',
-        options,
         'PROVIDER',
         true,
         false,
@@ -97,6 +95,33 @@ describe('prisma.service.ts', () => {
       const client = service.generateClient('TEST');
       expect(client).toBeInstanceOf(PrismaMock);
       expect(initializerMock).toHaveBeenCalled();
+    });
+    it('Should take prisma client constructor params properly', () => {
+      const initializerMock = vi.fn((client, _) => client);
+      const SpyClient = vi.fn();
+      service = new PrismaService(
+        {
+          class: SpyClient,
+          initializer: initializerMock,
+          options: {
+            log: ['info'],
+          },
+        },
+        'file:./dev.db',
+        'PROVIDER',
+        true,
+        false,
+      );
+      service.generateClient('TEST');
+      expect(SpyClient).toHaveBeenCalledTimes(1);
+      expect(SpyClient).toHaveBeenCalledWith({
+        log: ['info'],
+        datasources: {
+          db: {
+            url: 'file:./dev.db',
+          },
+        },
+      });
     });
   });
   describe('getConnection', () => {

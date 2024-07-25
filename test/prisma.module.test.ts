@@ -12,6 +12,24 @@ vi.mock('../src/prisma.service.ts', () => {
 });
 
 describe('prisma.module.ts', () => {
+  describe('Options', () => {
+    it('Should set the provider to global if specified', async () => {
+      const dynamic_module_global = PrismaModule.register({
+        client: PrismaMock,
+        name: 'TEST',
+        global: true,
+      });
+
+      const dynamic_module = PrismaModule.register({
+        client: PrismaMock,
+        name: 'TEST',
+      });
+
+      expect(dynamic_module_global.global).toBe(true);
+      expect(dynamic_module.global).toBe(false);
+    });
+  });
+
   describe('Multitenancy', () => {
     it('Class Only: Should return a dynamic module with the Prisma Service as a provider', async () => {
       const dynamic_module = PrismaModule.register({

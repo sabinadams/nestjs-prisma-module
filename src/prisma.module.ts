@@ -14,13 +14,13 @@ export class PrismaModule {
       new PrismaService(
         options.client,
         options.datasource,
-        options.options,
         options.name,
         options.multitenancy,
         options.logging,
       ),
     );
     return {
+      global: options.global ?? false,
       module: PrismaModule,
       providers: [provider],
       exports: [provider],

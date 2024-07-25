@@ -13,16 +13,17 @@ export type Initializer<T extends ClassLike> = (
   tenant: string,
 ) => InstanceType<T>;
 
-type ClientConfig<T extends ClassLike> = {
+export type ClientConfig<T extends ClassLike> = {
   class: T;
-  initializer: Initializer<T>;
+  initializer?: Initializer<T>;
+  options?: Omit<GetConstructorArgs<T>[0], 'datasources'>;
 };
 
 type BasePluginConfig<T extends ClassLike> = {
   name: string;
   logging?: boolean;
   client: T | ClientConfig<T>;
-  options?: Omit<GetConstructorArgs<T>[0], 'datasources'>;
+  global?: boolean;
 };
 
 // If multitenancy or datasource is present, both need to be there
@@ -31,7 +32,6 @@ interface PluginConfigMulti<T extends ClassLike> extends BasePluginConfig<T> {
   datasource: string;
 }
 
-// If
 interface PluginConfigSingle<T extends ClassLike> extends BasePluginConfig<T> {
   multitenancy?: false;
   datasource?: undefined;

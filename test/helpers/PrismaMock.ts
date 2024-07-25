@@ -5,7 +5,6 @@ export default class MockClass {
   getOptions() {
     return this.options;
   }
-
   $connect = vi.fn();
   $disconnect = vi.fn();
   $on = vi.fn();
