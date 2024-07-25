@@ -43,19 +43,24 @@
     "@types/sinon": "17.0.3",
     "@typescript-eslint/eslint-plugin": "^7.17.0",
     "@typescript-eslint/parser": "^7.17.0",
-    "@vitest/ui": "2.0.4",
+    "@vitest/ui": "^2.0.4",
     "connection-string": "^4.4.0",
-    "eslint": "^9.7.0",
+    "eslint": "^8.57.0",
     "eslint-config-prettier": "9.1.0",
     "globals": "^15.8.0",
     "husky": "^9.1.2",
     "lint-staged": "15.2.7",
     "prettier": "3.3.3",
+    "reflect-metadata": "^0.2.0",
+    "rxjs": "^7.8.1",
     "sinon": "18.0.0",
     "typescript": "5.5.4",
-    "vitest": "2.0.4"
+    "vitest": "^2.0.4"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "peerDependencies": {
+    "eslint": "^8.57.0"
   }
 }

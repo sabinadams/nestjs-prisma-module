@@ -1,5 +1,5 @@
-export type ClassLike = new (...args: any) => any;
-export type GetConstructorArgs<T> = T extends new (...args: infer U) => any
+export type ClassLike = new (...args: unknown[]) => unknown;
+export type GetConstructorArgs<T> = T extends new (...args: infer U) => unknown
   ? U
   : never;
 export interface ConnectionObject<T> {
