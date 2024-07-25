@@ -50,7 +50,7 @@
     "globals": "^15.8.0",
     "husky": "^9.1.2",
     "lint-staged": "15.2.7",
-    "prettier": "3.3.3",
+    "prettier": "2.8.8",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "sinon": "18.0.0",
