@@ -1,5 +1,7 @@
-export type ClassLike = new (...args: unknown[]) => unknown;
-export type GetConstructorArgs<T> = T extends new (...args: infer U) => unknown
+// eslint-disable-next-line
+export type ClassLike = new (...args: any) => any;
+// eslint-disable-next-line
+export type GetConstructorArgs<T> = T extends new (...args: infer U) => any
   ? U
   : never;
 export interface ConnectionObject<T> {
