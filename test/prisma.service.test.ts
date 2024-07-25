@@ -133,7 +133,7 @@ describe('prisma.service.ts', () => {
     it('Should re-use an existing conncetion', () => {
       service.getConnection('test-tenant');
       service.getConnection('test-tenant');
-      expect(service.connections['test-tenant'].$on).toBeCalledTimes(1);
+      expect(service.connections['test-tenant'].$connect).toBeCalledTimes(1);
     });
     it('Should store different connections for each tenant', () => {
       service.getConnection('test-tenant');
@@ -154,10 +154,6 @@ describe('prisma.service.ts', () => {
     it('Should $connect the generated client', () => {
       service.getConnection('test-tenant');
       expect(service.connections['test-tenant'].$connect).toBeCalledTimes(1);
-    });
-    it("Should $on('beforeExit') the generated client", () => {
-      service.getConnection('test-tenant');
-      expect(service.connections['test-tenant'].$on).toBeCalledTimes(1);
     });
   });
   describe('onModuleDestroy', () => {

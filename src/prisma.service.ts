@@ -89,13 +89,8 @@ export default class PrismaService<T extends ClassLike>
   getConnection(tenant: string) {
     if (!this.connections[tenant]) {
       this.logger.log(`<${this.name}> | ✅ Creating new ${tenant} DB client`);
-
       this.connections[tenant] = this.generateClient(tenant);
       this.connections[tenant].$connect();
-      this.connections[tenant].$on('beforeExit', async () => {
-        this.logger.log(`<${this.name}> | 🗑 Exiting ${tenant} db connections`);
-        await this.connections[tenant].$disconnect();
-      });
     } else {
       if (this.logging)
         this.logger.log(
