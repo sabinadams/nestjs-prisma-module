@@ -40,7 +40,7 @@
     "@nestjs/platform-express": "^10.3.10",
     "@nestjs/testing": "^10.3.10",
     "@types/node-fetch": "2.6.11",
-    "@types/sinon": "17.0.3",
+    "@types/sinon": "10.0.20",
     "@typescript-eslint/eslint-plugin": "^7.17.0",
     "@typescript-eslint/parser": "^7.17.0",
     "@vitest/ui": "^2.0.4",
