@@ -237,7 +237,6 @@ Then configure a custom logger module:
 // modules/logger.module.ts
 import { Module } from '@nestjs/common';
 import { LoggerModule as PinoLoggerModule } from 'nestjs-pino';
-import { randomUUID } from 'node:crypto';
 
 @Module({
   imports: [
