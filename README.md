@@ -160,10 +160,10 @@ import { PrismaModule } from '@sabinthedev/nestjs-prisma';
       client: {
         class: PrismaMock,
         options: {
-	        log: [{
-		        emit: 'event',
-		        level: 'info'
-	        }]
+	  log: [{
+	    emit: 'event',
+	    level: 'info'
+          }]
         }
       },
       logging: true,
@@ -297,24 +297,8 @@ async function bootstrap() {
 bootstrap();
 ```
 
-Finally, you can use that custom logger to stream Pino logs to Grafana Loki:
+With that configured, the `@nestjs/common` library will now use the Pino logger with the Loki transport under the hood, meaning all of the logs from the this library will go to Loki.
 
-```ts
-// controllers/app.controller.ts
-import { Controller, Logger, Post, UseGuards, Body } from '@nestjs/common';
-
-@Controller()
-export class AppController {
-  private readonly logger = new Logger(AppController.name);
-  constructor() {}
-	
-  @Get()
-  getTest() {
-	this.logger.info('This is a test');
-	return true;	
-  }
-}
-```
 ## Author
 
 I'm Sabin Adams! Find me on [𝕏](https://x.com/sabinthedev)
