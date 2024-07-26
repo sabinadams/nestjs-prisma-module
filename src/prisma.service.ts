@@ -98,13 +98,13 @@ export default class PrismaService<T extends ClassLike>
           this.logger.log(e);
         });
         this.connections[tenant].$on('error', (e) => {
-          this.logger.log(e);
+          this.logger.error(e);
         });
         this.connections[tenant].$on('info', (e) => {
           this.logger.log(e);
         });
         this.connections[tenant].$on('warn', (e) => {
-          this.logger.log(e);
+          this.logger.warn(e);
         });
       }
     } else {
