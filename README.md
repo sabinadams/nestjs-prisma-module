@@ -6,7 +6,6 @@
 
 [![Tests](https://github.com/sabinadams/nestjs-prisma-module/actions/workflows/tests.yml/badge.svg)](https://github.com/sabinadams/nestjs-prisma-module/actions/workflows/tests.yml)
 [![Linting](https://github.com/sabinadams/nestjs-prisma-module/actions/workflows/lint.yml/badge.svg)](https://github.com/sabinadams/nestjs-prisma-module/actions/workflows/lint.yml)
-[![npm version](https://badge.fury.io/js/@sabinthedev%2Fnestjs-prisma.svg)]
 
 </div>
 
