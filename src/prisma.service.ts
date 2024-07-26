@@ -93,6 +93,20 @@ export default class PrismaService<T extends ClassLike>
       }
       this.connections[tenant] = this.generateClient(tenant);
       this.connections[tenant].$connect();
+      if (this.logger) {
+        this.connections[tenant].$on('query', (e) => {
+          this.logger.log(e);
+        });
+        this.connections[tenant].$on('error', (e) => {
+          this.logger.log(e);
+        });
+        this.connections[tenant].$on('info', (e) => {
+          this.logger.log(e);
+        });
+        this.connections[tenant].$on('warn', (e) => {
+          this.logger.log(e);
+        });
+      }
     } else {
       if (this.logging) {
         this.logger.log(
