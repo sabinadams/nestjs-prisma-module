@@ -6,9 +6,7 @@
 
 [![Tests](https://github.com/sabinadams/nestjs-prisma-module/actions/workflows/tests.yml/badge.svg)](https://github.com/sabinadams/nestjs-prisma-module/actions/workflows/tests.yml)
 [![Linting](https://github.com/sabinadams/nestjs-prisma-module/actions/workflows/lint.yml/badge.svg)](https://github.com/sabinadams/nestjs-prisma-module/actions/workflows/lint.yml)
-[![npm version](https://badge.fury.io/js/@sabinthedev%2Fnestjs-prisma.svg)](https://badge.fury.io/js/@sabinthedev%2Fnestjs-prisma)
-
-[![NPM](https://nodei.co/npm/@sabinthedev/nestjs-prisma.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/@sabinthedev/nestjs-prisma)
+[![npm version](https://badge.fury.io/js/@sabinthedev%2Fnestjs-prisma.svg)]
 
 </div>
 
@@ -115,10 +113,10 @@ This function takes in a single parameter, `options`. This is an object with the
 
 | Parameter    | Type                                                       |            | Description                                                                                                                                                                                                |
 | ------------ | ---------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| name         | string                                                     | Required   | The dependency injection token to use with `@Inject`. See [the docs](https://docs.nestjs.com/fundamentals/custom-providers#non-class-based-provider-tokens) for more info.                                 |
-| logging      | boolean                                                    | Optional   | Enables logging within the module that gives insights how your connections are being handled.                                                                                                              |
-| client       | `PrismaClient` class _or_ [`ClientConfig`](#client-config) | Required   | The `PrismaClient` class to be instantiated, or an object containing a reference to a `PrismaClient` class and a callback function that allows you to modify the instantiated class on a per-tenant basis. |
-| options      | `PrismaClient` constructor args                            | Optional   | See the [Prisma Client API reference](https://www.prisma.io/docs/reference/api-reference/prisma-client-reference#prismaclient)                                                                             |
+| name         | string                                                     | Required   | The dependency injection token to use with `@Inject`. See [the docs](https://docs.nestjs.com/fundamentals/custom-providers#non-class-based-provider-tokens) for more info.
+| global         | Optional                                                     | false   | When true, the module is marked as a `@Global()` module.                                 
+| logging      | boolean                                                    | Optional   | Enables logging within the module using NestJS's Logger module.                                                                                                              |
+| client       | `PrismaClient` class _or_ [`ClientConfig`](#client-config) | Required   | The `PrismaClient` class to be instantiated, or an object containing a reference to a `PrismaClient` class and a callback function that allows you to modify the instantiated class on a per-tenant basis. 
 | multitenancy | boolean                                                    | Optional\* | A flag that turns on the multi-tenancy capabilities of this module.                                                                                                                                        |
 | datasource   | string                                                     | Optional\* | A datasource URL that is used to manually override Prisma Client's datasource. This is used as the base URL when dynamically selecting tenant databases.                                                   |
 
@@ -132,6 +130,7 @@ An object of the `ClientConfig` type is able to be provided instead of a `Prisma
 | ----------- | --------------------------- | -------- | ---------------------------------------------------------------- |
 | client      | PrismaClient                | Required | A `PrismaClient` class                                           |
 | initializer | [Initializer](#initializer) | Required | A function that is called when a `PrismaClient` is instantiated. |
+| options      | `PrismaClient` constructor args                            | Optional   | See the [Prisma Client API reference](https://www.prisma.io/docs/reference/api-reference/prisma-client-reference#prismaclient) 
 
 #### `initializer(client: PrismaClient, tenant: string) => PrismaClient`
 
@@ -148,7 +147,6 @@ In the scenario below, the module is configured to:
 - Use multi-tenancy
 - Log info on the connection handling
 - Initialize PrismaClient with logging enabled at the `info` level _(see Prisma's docs on [logging](https://www.prisma.io/docs/concepts/components/prisma-client/working-with-prismaclient/logging))_
-- Hook into the `$on('info')` logging event to customize the message so it is more appropriate for a multi-tenant system
 
 ```ts
 import { Module } from '@nestjs/common';
@@ -162,12 +160,12 @@ import { PrismaModule } from '@sabinthedev/nestjs-prisma';
     PrismaModule.register({
       client: {
         class: PrismaMock,
-        initializer: (client, tenant) => {
-          client.$on('info', (e) => {
-            console.log(`${tenant} INFO | ${e.message}`);
-          });
-          return client;
-        },
+        options: {
+	        log: [{
+		        emit: 'event',
+		        level: 'info'
+	        }]
+        }
       },
       logging: true,
       multitenancy: true,
@@ -222,11 +220,105 @@ The configuration above registers both clients as separate providers.
 
 You, of course, have all of the granular control and options as before when registering multiple modules.
 
+## Guides
+
+### Using Custom Logger and Grafana Loki
+
+This module makes use of the built-in [NestJS Logger](https://docs.nestjs.com/techniques/logger) module.
+Let's say your app use a [Pino](https://github.com/pinojs/pino) logger and aggregrate your logs into [Grafana Loki](https://grafana.com/oss/loki/), how would you do that?
+
+First, you'll want the [`pino-nestjs`](https://github.com/iamolegga/nestjs-pino) package:
+
+```sh
+pnpm add pino-nestjs pino-http
+```
+
+Then configure a custom logger module:
+```ts
+// modules/logger.module.ts
+import { Module } from '@nestjs/common';
+import { LoggerModule as PinoLoggerModule } from 'nestjs-pino';
+import { randomUUID } from 'node:crypto';
+
+@Module({
+  imports: [
+    PinoLoggerModule.forRoot({
+      pinoHttp: {
+        transport: {
+          target: 'pino-loki',
+          options: {
+            batching: true,
+            interval: 5,
+            host: process.env.LOKI_URL,
+            basicAuth: {
+              username: process.env.LOKI_USERNAME,
+              password: process.env.LOKI_PASSWORD,
+            },
+          },
+        },
+      },
+    }),
+  ],
+})
+export class LoggerModule {}
+```
+
+Above we set up a Pino logger configured to use Pino's `pinoHttp` transport option to send logs to Loki.
+
+Next we need to import this into our app module:
+
+```ts
+// src/app.module.ts
+import { Module } from '@nestjs/common';
+import { LoggerModule } from '@/modules/logger.module';
+
+@Module({
+  imports: [
+    LoggerModule
+  ],
+})
+export class AppModule {}
+```
+
+This provides the module to the application at the root level.
+
+Lastly, in `main.ts` you will want to set this logger as the default logger so you can continue to use `@nestjs/common`'s `Logger` module:
+
+```ts
+// src/main.ts
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { Logger } from 'nestjs-pino';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule, { rawBody: true });
+  app.useLogger(app.get(Logger));
+  await app.listen(3000);
+}
+bootstrap();
+```
+
+Finally, you can use that custom logger to stream Pino logs to Grafana Loki:
+
+```ts
+// controllers/app.controller.ts
+import { Controller, Logger, Post, UseGuards, Body } from '@nestjs/common';
+
+@Controller()
+export class AppController {
+  private readonly logger = new Logger(AppController.name);
+  constructor() {}
+	
+  @Get()
+  getTest() {
+	this.logger.info('This is a test');
+	return true;	
+  }
+}
+```
 ## Author
 
-I'm Sabin Adams!
-
-<p align="left"> <a href="https://twitter.com/sabinthedev" target="blank"><img src="https://img.shields.io/twitter/follow/sabinthedev?logo=twitter&style=for-the-badge" alt="sabinthedev" /></a> </p>
+I'm Sabin Adams! Find me on [𝕏](https://x.com/sabinthedev)
 
 ## Contributors
 
