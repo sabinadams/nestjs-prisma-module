@@ -1,4 +1,4 @@
-import { Injectable, OnModuleDestroy } from '@nestjs/common';
+import { Logger, Injectable, OnModuleDestroy } from '@nestjs/common';
 import type {
   ClassLike,
   ClientConfig,
@@ -6,13 +6,12 @@ import type {
   PluginConfig,
 } from './types';
 import { ConnectionString } from 'connection-string';
-import { Logger } from './logger';
 
 @Injectable()
 export default class PrismaService<T extends ClassLike>
   implements OnModuleDestroy
 {
-  logger: Logger;
+  private readonly logger = new Logger(PrismaService.name);
   connections = {};
   constructor(
     public PrismaClient: PluginConfig<T>['client'],
@@ -20,16 +19,17 @@ export default class PrismaService<T extends ClassLike>
     public name: PluginConfig<T>['name'],
     public multitenancy: PluginConfig<T>['multitenancy'] = false,
     public logging: PluginConfig<T>['logging'] = false,
-  ) {
-    this.logger = new Logger(logging);
-  }
+  ) {}
 
   getTenantDBUrl(name: string) {
     const string = new ConnectionString(this.datasource);
     if (!string.protocol) {
-      this.logger.log(
-        `<${this.name}> | ⚠️ SQLite does not support multiple DBs. All tenants will use the same connection. <${this.name}>`,
-      );
+      if (this.logging) {
+        this.logger.log(
+          `<${this.name}> | ⚠️ SQLite does not support multiple DBs. All tenants will use the same connection. <${this.name}>`,
+        );
+      }
+
       return this.datasource;
     }
     switch (string.protocol) {
@@ -88,23 +88,30 @@ export default class PrismaService<T extends ClassLike>
 
   getConnection(tenant: string) {
     if (!this.connections[tenant]) {
-      this.logger.log(`<${this.name}> | ✅ Creating new ${tenant} DB client`);
+      if (this.logging) {
+        this.logger.log(`<${this.name}> | ✅ Creating new ${tenant} DB client`);
+      }
       this.connections[tenant] = this.generateClient(tenant);
       this.connections[tenant].$connect();
     } else {
-      if (this.logging)
+      if (this.logging) {
         this.logger.log(
           `<${this.name}> | ♻️ Using existing ${tenant} DB client`,
         );
+      }
     }
 
     return this.connections[tenant];
   }
 
   async onModuleDestroy() {
-    this.logger.log(`<${this.name}> | 💣 Disconnecting prisma pools`);
+    if (this.logging) {
+      this.logger.log(`<${this.name}> | 💣 Disconnecting prisma pools`);
+    }
     Object.keys(this.connections).forEach(async (tenant) => {
-      this.logger.log(`<${this.name}> | Disconnecting ${tenant}`);
+      if (this.logging) {
+        this.logger.log(`<${this.name}> | Disconnecting ${tenant}`);
+      }
       await this.connections[tenant].$disconnect();
     });
   }
