@@ -226,10 +226,10 @@ You, of course, have all of the granular control and options as before when regi
 This module makes use of the built-in [NestJS Logger](https://docs.nestjs.com/techniques/logger) module.
 Let's say your app uses a [Pino](https://github.com/pinojs/pino) logger and aggregrates your logs into [Grafana Loki](https://grafana.com/oss/loki/), how would you do that?
 
-First, you'll want the [`pino-nestjs`](https://github.com/iamolegga/nestjs-pino) package:
+First, you'll want the [`pino-nestjs`](https://github.com/iamolegga/nestjs-pino) and [`pino-loki`](https://github.com/Julien-R44/pino-loki) packages:
 
 ```sh
-pnpm add pino-nestjs pino-http
+pnpm add pino-nestjs pino-http pino-loki
 ```
 
 Then configure a custom logger module:
