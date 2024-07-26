@@ -297,7 +297,7 @@ async function bootstrap() {
 bootstrap();
 ```
 
-With that configured, the `@nestjs/common` library will now use the Pino logger with the Loki transport under the hood, meaning all of the logs from the this library will go to Loki.
+With that configured, the `@nestjs/common` library will now use the Pino logger with the Loki transport under the hood, meaning all of the logs from the this library will go to Loki _(if logging is turned on)_.
 
 ## Author
 
