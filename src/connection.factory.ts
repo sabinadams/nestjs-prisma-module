@@ -37,7 +37,7 @@ export default (
 
     switch (requestType) {
       case 'HTTP':
-        if ((req as Request).headers.has('x-tenant-id')) {
+        if ((req as Request).headers['x-tenant-id']) {
           tenantId = (req as Request).headers['x-tenant-id'];
         }
         return await resolveTenantConnection(tenantId, multitenancy, _service);
