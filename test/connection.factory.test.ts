@@ -23,7 +23,7 @@ describe('connection.factory.ts', () => {
     true,
   );
   beforeEach(() => {
-    provider = factory('TEST', true, service);
+    provider = factory('TEST', true, 'HTTP', service);
   });
 
   it('Should return a Provider', () => {
@@ -86,7 +86,7 @@ describe('connection.factory.ts', () => {
       'test',
     );
     beforeEach(() => {
-      provider = factory('TEST', false, service);
+      provider = factory('TEST', false, 'HTTP', service);
     });
     it('Should return a Provider', () => {
       expect(provider.provide).toBe('TEST');
