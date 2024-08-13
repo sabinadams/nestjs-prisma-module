@@ -11,6 +11,7 @@ export class PrismaModule {
     const provider = factory(
       options.name,
       options.multitenancy,
+      options.requestType ?? 'HTTP',
       new PrismaService(
         options.client,
         options.datasource,

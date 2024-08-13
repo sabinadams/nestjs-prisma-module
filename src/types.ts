@@ -22,6 +22,7 @@ export type ClientConfig<T extends ClassLike> = {
 type BasePluginConfig<T extends ClassLike> = {
   name: string;
   logging?: boolean;
+  requestType?: 'GRPC' | 'HTTP';
   client: T | ClientConfig<T>;
   global?: boolean;
 };

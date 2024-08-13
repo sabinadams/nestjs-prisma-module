@@ -110,14 +110,15 @@ _More to be added soon..._
 The register function registers `PrismaModule` and allows you to pass in options that change the behavior of the module and the generated Prisma Client instances.
 This function takes in a single parameter, `options`. This is an object with the following available keys:
 
-| Parameter    | Type                                                       |            | Description                                                                                                                                                                                                |
-| ------------ | ---------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| name         | string                                                     | Required   | The dependency injection token to use with `@Inject`. See [the docs](https://docs.nestjs.com/fundamentals/custom-providers#non-class-based-provider-tokens) for more info.
-| global         | Optional                                                     | false   | When true, the module is marked as a `@Global()` module.                                 
-| logging      | boolean                                                    | Optional   | Enables logging within the module using NestJS's Logger module.                                                                                                              |
-| client       | `PrismaClient` class _or_ [`ClientConfig`](#clientconfig) | Required   | The `PrismaClient` class to be instantiated, or an object containing a reference to a `PrismaClient` class and a callback function that allows you to modify the instantiated class on a per-tenant basis. 
-| multitenancy | boolean                                                    | Optional\* | A flag that turns on the multi-tenancy capabilities of this module.                                                                                                                                        |
-| datasource   | string                                                     | Optional\* | A datasource URL that is used to manually override Prisma Client's datasource. This is used as the base URL when dynamically selecting tenant databases.                                                   |
+| Parameter    | Type                                                      |            | Description                                                                                                                                                                                                |
+| ------------ | --------------------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| name         | string                                                    | Required   | The dependency injection token to use with `@Inject`. See [the docs](https://docs.nestjs.com/fundamentals/custom-providers#non-class-based-provider-tokens) for more info.                                 |
+| global       | Optional                                                  | false      | When true, the module is marked as a `@Global()` module.                                                                                                                                                   |
+| logging      | boolean                                                   | Optional   | Enables logging within the module using NestJS's Logger module.                                                                                                                                            |
+| client       | `PrismaClient` class _or_ [`ClientConfig`](#clientconfig) | Required   | The `PrismaClient` class to be instantiated, or an object containing a reference to a `PrismaClient` class and a callback function that allows you to modify the instantiated class on a per-tenant basis. |
+| multitenancy | boolean                                                   | Optional\* | A flag that turns on the multi-tenancy capabilities of this module.                                                                                                                                        |
+| datasource   | string                                                    | Optional\* | A datasource URL that is used to manually override Prisma Client's datasource. This is used as the base URL when dynamically selecting tenant databases.                                                   |
+| requestType  | `HTTP` or `GRPC`                                          | Optional\* | Defines what kind of request to handle, allowing the plugin to correctly grab a tenant ID. (Defaults to `HTTP`). _More to be added._                                                                       |
 
 > **Note**: If `multitenancy` OR `datasources` are present, both are required. The built-in type-safety will make this apparent.
 
@@ -125,11 +126,11 @@ This function takes in a single parameter, `options`. This is an object with the
 
 An object of the `ClientConfig` type is able to be provided instead of a `PrismaClient` class to the `client` option key. This object should contain:
 
-| Parameter   | Type                        |          | Description                                                      |
-| ----------- | --------------------------- | -------- | ---------------------------------------------------------------- |
-| client      | PrismaClient                | Required | A `PrismaClient` class                                           |
-| initializer | [Initializer](#initializer) | Required | A function that is called when a `PrismaClient` is instantiated. |
-| options      | `PrismaClient` constructor args                            | Optional   | See the [Prisma Client API reference](https://www.prisma.io/docs/reference/api-reference/prisma-client-reference#prismaclient) 
+| Parameter   | Type                            |          | Description                                                                                                                    |
+| ----------- | ------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| client      | PrismaClient                    | Required | A `PrismaClient` class                                                                                                         |
+| initializer | [Initializer](#initializer)     | Required | A function that is called when a `PrismaClient` is instantiated.                                                               |
+| options     | `PrismaClient` constructor args | Optional | See the [Prisma Client API reference](https://www.prisma.io/docs/reference/api-reference/prisma-client-reference#prismaclient) |
 
 #### `initializer(client: PrismaClient, tenant: string) => PrismaClient`
 
@@ -160,11 +161,13 @@ import { PrismaModule } from '@sabinthedev/nestjs-prisma';
       client: {
         class: PrismaMock,
         options: {
-	  log: [{
-	    emit: 'event',
-	    level: 'info'
-          }]
-        }
+          log: [
+            {
+              emit: 'event',
+              level: 'info',
+            },
+          ],
+        },
       },
       logging: true,
       multitenancy: true,
@@ -233,6 +236,7 @@ pnpm add pino-nestjs pino-http pino-loki
 ```
 
 Then configure a custom logger module:
+
 ```ts
 // modules/logger.module.ts
 import { Module } from '@nestjs/common';
@@ -271,9 +275,7 @@ import { Module } from '@nestjs/common';
 import { LoggerModule } from '@/modules/logger.module';
 
 @Module({
-  imports: [
-    LoggerModule
-  ],
+  imports: [LoggerModule],
 })
 export class AppModule {}
 ```
