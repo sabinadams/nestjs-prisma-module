@@ -33,20 +33,21 @@ export default (
   provide: name,
   scope: Scope.REQUEST,
   useFactory: async (req: Request | RequestContext) => {
+    let tenantId = null;
+
     switch (requestType) {
       case 'HTTP':
-        return await resolveTenantConnection(
-          (req as Request).headers['x-tenant-id'] ?? null,
-          multitenancy,
-          _service,
-        );
+        if ((req as Request).headers.has('x-tenant-id')) {
+          tenantId = (req as Request).headers['x-tenant-id'];
+        }
+        return await resolveTenantConnection(tenantId, multitenancy, _service);
       case 'GRPC':
-        return await resolveTenantConnection(
-          (req as RequestContext).context.internalRepr.get('x-tenant-id')[0] ??
-            null,
-          multitenancy,
-          _service,
-        );
+        if ((req as RequestContext).context.internalRepr.has('x-tenant-id')) {
+          tenantId = (req as RequestContext).context.internalRepr.has(
+            'x-tenant-id',
+          )[0];
+        }
+        return await resolveTenantConnection(tenantId, multitenancy, _service);
     }
   },
   inject: [REQUEST],
