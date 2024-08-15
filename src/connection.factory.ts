@@ -7,21 +7,57 @@ import { RequestContext } from '@nestjs/microservices';
 
 const resolveTenantConnection = (
   tenant: string | null,
-  multitenancy: boolean,
   _service: PrismaService<ClassLike>,
 ) => {
   return new Promise((resolve, reject) => {
-    if (!tenant && multitenancy) {
+    if (!tenant) {
       reject(new BadRequestException('⛔️ Invalid Request Options - Tenant'));
     } else {
-      let tenantName = 'DEFAULT';
-      if (tenant && multitenancy) {
-        tenantName = tenant;
-      }
-      const connection = _service.getConnection(tenantName);
+      const connection = _service.getConnection(tenant);
       resolve(connection);
     }
   });
+};
+
+const multiTenantHTTPFactory =
+  (_service: PrismaService<ClassLike>) =>
+  async (req: Request | RequestContext) => {
+    let tenantId = null;
+    if ((req as Request).headers['x-tenant-id']) {
+      tenantId = (req as Request).headers['x-tenant-id'];
+    }
+    return await resolveTenantConnection(tenantId, _service);
+  };
+
+const multiTenantGRPCFactory =
+  (_service: PrismaService<ClassLike>) =>
+  async (req: Request | RequestContext) => {
+    let tenantId = null;
+    if ((req as RequestContext).context.internalRepr.has('x-tenant-id')) {
+      tenantId = (req as RequestContext).context.internalRepr.has(
+        'x-tenant-id',
+      )[0];
+    }
+    return await resolveTenantConnection(tenantId, _service);
+  };
+
+const genericFactory = (_service: PrismaService<ClassLike>) => async () => {
+  return await resolveTenantConnection('DEFAULT', _service);
+};
+
+const getFactory = (
+  multitenancy: boolean,
+  requestType: PluginConfig<ClassLike>['requestType'],
+  _service: PrismaService<ClassLike>,
+) => {
+  if (!multitenancy) return genericFactory(_service);
+  if (requestType === 'HTTP') {
+    return multiTenantHTTPFactory(_service);
+  } else if (requestType === 'GRPC') {
+    return multiTenantGRPCFactory(_service);
+  } else {
+    throw new BadRequestException('⛔️ Unhandled request type');
+  }
 };
 
 export default (
@@ -31,24 +67,7 @@ export default (
   _service: PrismaService<ClassLike>,
 ): FactoryProvider => ({
   provide: name,
-  scope: Scope.REQUEST,
-  useFactory: async (req: Request | RequestContext) => {
-    let tenantId = null;
-
-    switch (requestType) {
-      case 'HTTP':
-        if ((req as Request).headers['x-tenant-id']) {
-          tenantId = (req as Request).headers['x-tenant-id'];
-        }
-        return await resolveTenantConnection(tenantId, multitenancy, _service);
-      case 'GRPC':
-        if ((req as RequestContext).context.internalRepr.has('x-tenant-id')) {
-          tenantId = (req as RequestContext).context.internalRepr.has(
-            'x-tenant-id',
-          )[0];
-        }
-        return await resolveTenantConnection(tenantId, multitenancy, _service);
-    }
-  },
-  inject: [REQUEST],
+  scope: multitenancy ? Scope.REQUEST : Scope.DEFAULT,
+  useFactory: getFactory(multitenancy, requestType, _service),
+  inject: multitenancy ? [REQUEST] : [],
 });
